@@ -1,8 +1,23 @@
 from pyquery import PyQuery as pq
 import json
 import requests
+import base64
+
+
 
 AttendanceDetails = {}
+
+def getCookieFromToken(token):
+    try:
+        token = token.replace('\\n', '\n')
+        token = base64.decodestring(str.encode(token))
+        cookie = json.loads(token)
+        return cookie
+    except:
+        return "error"
+
+
+
 
 
 def get_attendancedata(index, element):
@@ -13,7 +28,6 @@ def get_attendancedata(index, element):
     else:
         CourseCode = CourseCode[:-8]
 
-        # print("NEW = " + CourseCode)
         AttendanceDetails[CourseCode] = {
             "CourseTitle": pq(element).find('td').eq(1).text(),
             "Category": pq(element).find('td').eq(2).text(),
@@ -52,37 +66,48 @@ url = "https://academia.srmuniv.ac.in/liveViewHeader.do"
 
 
 def getAttendenceAndMarks(token):
-    headers = {"Cookie": token,
-               'Origin': 'https://academia.srmuniv.ac.in',
-               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36'
-               }
-    data = {"sharedBy": "srm_university",
-            "appLinkName": "academia-academic-services",
-            "viewLinkName": "My_Attendance",
-            "urlParams": {},
-            "isPageLoad": "true"}
-
-    dom = pq(requests.post(url, data=data, headers=headers).text)
-    dom('table[border="1"]').eq(0).find('tr:nth-child(n + 2)').each(get_attendancedata)
-    dom('table[align="center"]').eq(2).find('tr:nth-child(n + 2)').each(get_marks)
 
 
-    AttendanceAndMarks = {}
-
-    for index, value in AttendanceDetails.items():
-        if index in Marks:
-            value["Marks"] = Marks[index]
-        else:
-            value["Marks"] = "Not Updated Yet"
-        AttendanceAndMarks[index] = value
-
-    AttendanceAndMarks = json.dumps(AttendanceAndMarks)
-
-    if len(AttendanceAndMarks) > 5:
-        json_o = {"status": "success", "data": AttendanceAndMarks}
-        json_o = json.dumps(json_o)
-        return json_o
-    else:
+    Cookies = getCookieFromToken(token)
+    if (Cookies == "error"):
         json_o = {"status": "error", "msg": "Error in token"}
         json_o = json.dumps(json_o)
         return json_o
+    else:
+
+        headers = {'Origin': 'https://academia.srmuniv.ac.in',
+                   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36'
+                   }
+        data = {"sharedBy": "srm_university",
+                "appLinkName": "academia-academic-services",
+                "viewLinkName": "My_Attendance",
+                "urlParams": {},
+                "isPageLoad": "true"}
+
+        dom = pq(requests.post(url, data=data, headers=headers, cookies=Cookies).text)
+        dom('table[border="1"]').eq(0).find('tr:nth-child(n + 2)').each(get_attendancedata)
+        dom('table[align="center"]').eq(2).find('tr:nth-child(n + 2)').each(get_marks)
+
+
+        AttendanceAndMarks = {}
+
+        for index, value in AttendanceDetails.items():
+            if index in Marks:
+                value["Marks"] = Marks[index]
+            else:
+                value["Marks"] = "Not Updated Yet"
+            AttendanceAndMarks[index] = value
+
+
+        if len(AttendanceAndMarks) > 5:
+            json_o = {"status": "success", "data": AttendanceAndMarks}
+            json_o = json.dumps(json_o)
+            return json_o
+        else:
+            json_o = {"status": "error", "msg": "Error in token"}
+            json_o = json.dumps(json_o)
+            return json_o
+
+
+
+

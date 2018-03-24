@@ -5,6 +5,8 @@ import attendence_marks
 import timetable
 import course_personal_details
 import json
+from flask import Response
+
 
 app = Flask(__name__)
 
@@ -20,24 +22,29 @@ def home():
 @app.route('/token', methods=['GET', 'POST'])
 def request():
     if 'email' in rq.args and 'pass' in rq.args:
-        return token_srm.getToken(rq.args.get('email'), rq.args.get('pass'))
+        response = token_srm.getToken(rq.args.get('email'), rq.args.get('pass'))
+        response = Response(response, status=200, mimetype='application/json')
+        return response
     else:
-        json_o = {"status":"error", "msg":"Error in Input Parameters"}
-        json_o = json.dumps(json_o)
-        return json_o
+        response = {"status":"error", "msg":"Error in Input Parameters"}
+        response = json.dumps(response)
+        response = Response(response, status=200, mimetype='application/json')
+        return response
 
 
 
 @app.route('/AttAndMarks', methods=['GET', 'POST'])
 def AttAndMarks():
     if 'token' in rq.args:
-        token = rq.args.get('token')
+        token = str(rq.args.get('token'))
         att_marks = attendence_marks.getAttendenceAndMarks(token)
-        return att_marks
+        response = Response(att_marks, status=200, mimetype='application/json')
+        return response
     else:
-        json_o = {"status": "error", "msg": "Error in Input Parameters"}
-        json_o = json.dumps(json_o)
-        return json_o
+        response = {"status": "error", "msg": "Error in Input Parameters"}
+        response = json.dumps(response)
+        response = Response(response, status=200, mimetype='application/json')
+        return response
 
 
 
@@ -47,25 +54,28 @@ def TimeTable():
         batchNo = rq.args.get('batch')
         token = rq.args.get('token')
         timeTable = timetable.getTimeTable(token, batchNo)
-        return timeTable
+        response = Response(timeTable, status=200, mimetype='application/json')
+        return response
     else:
-        json_o = {"status": "error", "msg": "Error in Input Parameters"}
-        json_o = json.dumps(json_o)
-        return json_o
+        response = {"status": "error", "msg": "Error in Input Parameters"}
+        response = json.dumps(response)
+        response = Response(response, status=200, mimetype='application/json')
+        return response
 
 
 
 @app.route('/PersonalDetails', methods=['GET', 'POST'])
 def getPersonalDetails():
-    if 'sem' in rq.args and 'token' in rq.args:
-        sem = rq.args.get('sem')
+    if 'token' in rq.args:
         token = rq.args.get('token')
-        details = course_personal_details.getCoursePersonalDetails(token, sem)
-        return details
+        details = course_personal_details.getCoursePersonalDetails(token)
+        response = Response(details, status=200, mimetype='application/json')
+        return response
     else:
-        json_o = {"status": "error", "msg": "Error in Input Parameters"}
-        json_o = json.dumps(json_o)
-        return json_o
+        response = {"status": "error", "msg": "Error in Input Parameters"}
+        response = json.dumps(response)
+        response = Response(response, status=200, mimetype='application/json')
+        return response
 
 
 

@@ -1,7 +1,7 @@
 import requests
 import json
 from urllib.parse import parse_qs
-
+import base64
 
 
 url = "https://academia.srmuniv.ac.in/accounts/signin.ac"
@@ -34,6 +34,10 @@ def getToken(username, password):
         params = parse_qs(json_data['data']['token_params'])
         params['state'] = 'https://academia.srmuniv.ac.in/'
         r = requests.get(json_data['data']['oauthorize_uri'], data=params, headers=headers)
-        json_o = {"status":"success", "token": r.history[0].headers['Set-Cookie']}
+        token = json.dumps(r.history[0].cookies.get_dict())
+        token = str(base64.encodestring(str.encode(token)),'utf-8')
+
+
+        json_o = {"status":"success", "token": token}
         return json.dumps(json_o)
 
