@@ -1,2 +1,13 @@
 [requires]
 python_version = "2.7"
+[packages]
+whitenoise = "*"
+gunicorn = "*"
+Flask = "*"
+crayons = "*"
+maya = "*"
+Flask-Compress = "*"
+Flask-Cache = "*"
+meinheld = "*"
+requests = "*"
+pyquery = "*"
