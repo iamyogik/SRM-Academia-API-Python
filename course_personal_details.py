@@ -65,9 +65,9 @@ url = "https://academia.srmuniv.ac.in/liveViewHeader.do"
 
 def getCoursePersonalDetailsData(token,sem="ODD"):
     if(sem == "EVEN"):
-        viewLinkName = "My_Time_Table_2017_18_EVEN"
+        viewLinkName = "My_Time_Table_2018_19_EVEN"
     elif(sem == "ODD"):
-        viewLinkName = "My_Time_Table_2017_18_ODD"
+        viewLinkName = "My_Time_Table_2018_19_ODD"
     else:
         json_o = {"status": "error", "msg": "Error in batch name."}
         json_o = json.dumps(json_o)
@@ -80,7 +80,6 @@ def getCoursePersonalDetailsData(token,sem="ODD"):
         return json_o
     else:
 
-
         headers = {'Origin': 'https://academia.srmuniv.ac.in',
                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36'
                    }
@@ -90,7 +89,15 @@ def getCoursePersonalDetailsData(token,sem="ODD"):
                 "urlParams": {},
                 "isPageLoad": "true"}
 
-        dom = pq(requests.post(url, data=data, headers=headers, cookies=Cookies).text)
+        dom = requests.post(url, data=data, headers=headers, cookies=Cookies).text
+
+        s1 = '$("#zc-viewcontainer_' + viewLinkName + '").prepend(pageSanitizer.sanitize('
+        s2 = '});</script>'
+
+        a, b = dom.find(s1), dom.find(s2)
+        dom = pq(dom[a + 56 + len(viewLinkName):b - 5])
+
+
         dom('table[border="1"]').find('tr:nth-child(n + 2)').each(get_CourseDetails)
         dom('td[align="center"]').each(get_facultyadvisordetails)
 
@@ -109,18 +116,16 @@ def getCoursePersonalDetails(token):
     CompleteDetails = getCoursePersonalDetailsData(token, "EVEN")
     if len(CompleteDetails['PersonalDetails']['RegistrationNumber']) > 5:
         json_o = {"status": "success", "data": CompleteDetails}
-        print(11111)
         json_o = json.dumps(json_o)
         return json_o
     else:
         CompleteDetails2 = getCoursePersonalDetailsData(token, "ODD")
-
         if len(CompleteDetails2['PersonalDetails']['RegistrationNumber']) > 5:
             json_o = {"status": "success", "data": CompleteDetails2}
             json_o = json.dumps(json_o)
             return json_o
         else:
-            json_o = {"status": "error", "msg": "Error in token"}
+            json_o = {"status": "error", "msg": "Error occured"}
             json_o = json.dumps(json_o)
             return json_o
 
