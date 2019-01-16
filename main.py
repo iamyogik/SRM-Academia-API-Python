@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    json_o = {"status": "success", "msg": "Its working. *** ACADEMIA API WITH PYTHON *** By Yogesh Kumawat"}
+    json_o = {"status": "success", "msg": "*** ACADEMIA API WITH PYTHON *** By Yogesh Kumawat"}
     json_o = json.dumps(json_o)
     return json_o
 

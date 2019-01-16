@@ -5,7 +5,7 @@ import base64
 import re
 
 
-AttendanceDetails = {}
+AttendanceDetails = []
 
 def getCookieFromToken(token):
     try:
@@ -28,7 +28,9 @@ def get_attendancedata(index, element):
     else:
         CourseCode = CourseCode[:-8]
 
-        AttendanceDetails[CourseCode] = {
+
+        AttendanceDetails.append({
+            "CourseCode": CourseCode,
             "CourseTitle": pq(element).find('td').eq(1).text(),
             "Category": pq(element).find('td').eq(2).text(),
             "FacultyName": pq(element).find('td').eq(3).text(),
@@ -37,10 +39,10 @@ def get_attendancedata(index, element):
             "HoursConducted": pq(element).find('td').eq(6).text(),
             "HoursAbsent": pq(element).find('td').eq(7).text(),
             "Attendance": pq(element).find('td').eq(8).text(),
-            "UniversityPracticalDetails": pq(element).find('td').eq(9).text()}
+            "UniversityPracticalDetails": pq(element).find('td').eq(9).text()})
 
 
-Marks = {}
+Marks = []
 
 
 def get_marks(index, element):
@@ -58,8 +60,10 @@ def get_marks(index, element):
         else:
             MarksTotal = MarksTotal + float(testMarks)
 
-    Marks[CourseCode] = Marks_each
-    Marks[CourseCode]["TOTAL"] = MarksTotal
+    Marks_each["CourseCode"] = CourseCode;
+    Marks_each["Total"] = MarksTotal;
+
+    Marks.append(Marks_each)
 
 
 url = "https://academia.srmuniv.ac.in/liveViewHeader.do"
@@ -98,14 +102,19 @@ def getAttendenceAndMarks(token):
         dom('table[align="center"]').eq(2).find('tr:nth-child(n + 2)').each(get_marks)
 
 
-        AttendanceAndMarks = {}
+        AttendanceAndMarks = []
 
-        for index, value in AttendanceDetails.items():
-            if index in Marks:
-                value["Marks"] = Marks[index]
-            else:
-                value["Marks"] = "Not Updated Yet"
-            AttendanceAndMarks[index] = value
+        for value_att in AttendanceDetails:
+
+            for value_marks in Marks:
+
+                if value_att["CourseCode"] == value_marks["CourseCode"]:
+                    req_marks = value_marks.copy()
+                    req_marks.pop('CourseCode', None)
+                    value_att["Marks"] = req_marks
+                else:
+                    continue
+            AttendanceAndMarks.append(value_att)
 
 
         if len(AttendanceAndMarks) > 5:

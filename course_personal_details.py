@@ -97,6 +97,12 @@ def getCoursePersonalDetailsData(token,sem="ODD"):
         a, b = dom.find(s1), dom.find(s2)
         dom = pq(dom[a + 56 + len(viewLinkName):b - 5])
 
+        print(dom)
+
+        json_o = {"status": "success", "msg": "Error occured"}
+        json_o = json.dumps(json_o)
+        return json_o
+
 
         dom('table[border="1"]').find('tr:nth-child(n + 2)').each(get_CourseDetails)
         dom('td[align="center"]').each(get_facultyadvisordetails)
@@ -114,19 +120,19 @@ def getCoursePersonalDetailsData(token,sem="ODD"):
 
 def getCoursePersonalDetails(token):
     CompleteDetails = getCoursePersonalDetailsData(token, "EVEN")
-    if len(CompleteDetails['PersonalDetails']['RegistrationNumber']) > 5:
-        json_o = {"status": "success", "data": CompleteDetails}
-        json_o = json.dumps(json_o)
-        return json_o
-    else:
-        CompleteDetails2 = getCoursePersonalDetailsData(token, "ODD")
-        if len(CompleteDetails2['PersonalDetails']['RegistrationNumber']) > 5:
-            json_o = {"status": "success", "data": CompleteDetails2}
-            json_o = json.dumps(json_o)
-            return json_o
-        else:
-            json_o = {"status": "error", "msg": "Error occured"}
-            json_o = json.dumps(json_o)
-            return json_o
+    # if len(CompleteDetails['PersonalDetails']['RegistrationNumber']) > 5:
+    #     json_o = {"status": "success", "data": CompleteDetails}
+    #     json_o = json.dumps(json_o)
+    #     return json_o
+    # else:
+    #     CompleteDetails2 = getCoursePersonalDetailsData(token, "ODD")
+    #     if len(CompleteDetails2['PersonalDetails']['RegistrationNumber']) > 5:
+    #         json_o = {"status": "success", "data": CompleteDetails2}
+    #         json_o = json.dumps(json_o)
+    #         return json_o
+    #     else:
+    #         json_o = {"status": "error", "msg": "Error occured"}
+    #         json_o = json.dumps(json_o)
+    #         return json_o
 
     
