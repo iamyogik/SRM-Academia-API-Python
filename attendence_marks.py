@@ -21,6 +21,11 @@ def getCookieFromToken(token):
 
 
 def get_attendancedata(index, element):
+    global AttendanceDetails
+
+    if index == 0:
+        AttendanceDetails = []
+    print(AttendanceDetails)
     CourseCode = pq(element).find('td').eq(0).text()
 
     if CourseCode.find("Regular") == -1:
@@ -96,6 +101,7 @@ def getAttendenceAndMarks(token):
         s2 = '});</script>'
         a, b = dom.find(s1), dom.find(s2)
         dom = pq(dom[a + 56 + len(viewLinkName):b - 5])
+
 
 
         dom('table[border="1"]').eq(0).find('tr:nth-child(n + 2)').each(get_attendancedata)
